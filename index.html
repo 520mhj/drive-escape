@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>周末自驾逃离计划</title>
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7R2BCNPBSP"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -19,15 +20,15 @@
   <style>
     /* ── Apple UI 核心变量与全局重置 ── */
     :root {
-      --apple-bg-glass: rgba(255, 255, 255, 0.72);
-      --apple-bg-glass-active: rgba(255, 255, 255, 0.88);
-      --apple-blur: blur(20px) saturate(190%);
-      --apple-border: 1px solid rgba(255, 255, 255, 0.42);
-      --apple-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-      --apple-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-      --apple-shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12), 0 1px 8px rgba(0, 0, 0, 0.04);
+      --apple-bg-glass: rgba(255, 255, 255, 0.65);
+      --apple-bg-glass-active: rgba(255, 255, 255, 0.85);
+      --apple-blur: blur(24px) saturate(190%);
+      --apple-border: 1px solid rgba(255, 255, 255, 0.45);
+      --apple-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.01);
+      --apple-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.02);
+      --apple-shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.08), 0 1px 10px rgba(0, 0, 0, 0.02);
       --primary-color: #1a6e5c;
-      --primary-color-light: rgba(26, 110, 92, 0.12);
+      --primary-color-light: rgba(26, 110, 92, 0.1);
       --text-main: #1d1d1f;
       --text-secondary: #6e6e73;
     }
@@ -37,20 +38,39 @@
 
     #map { width: 100%; height: 100%; background: #f0ede4; z-index: 1; }
 
-    /* ── Premium Apple 风格全屏欢迎屏 ── */
+    /* ── 修正版：Premium Apple Dynamic Mesh 欢迎屏 ── */
     #welcome-screen {
       position: fixed;
       inset: 0;
-      z-index: 2000;
-      background: radial-gradient(circle at 50% 30%, #fbfbfd 0%, #f5f5f7 100%);
+      width: 100vw;
+      height: 100vh;
+      z-index: 99999; /* 强力图层，屏蔽底下一切零碎图标泄露 */
+      overflow: hidden;
+      
+      /* 苹果流体艺术微光背景：薄荷绿 + 极光蓝 + 暮色紫 的高级融合 */
+      background: radial-gradient(circle at 10% 15%, #e1f5ee 0%, transparent 45%),
+                  radial-gradient(circle at 90% 10%, #e3edf7 0%, transparent 45%),
+                  radial-gradient(circle at 35% 85%, #f6eefa 0%, transparent 50%),
+                  radial-gradient(circle at 80% 90%, #eaf5f0 0%, transparent 45%),
+                  #f5f5f7;
+                  
       display: flex;
       align-items: center;
       justify-content: center;
       transition: opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
+    
+    /* 强行剥离欢迎页里的语言切换，做绝对定位处理 */
+    #welcome-screen .lang-switcher {
+      position: absolute !important;
+      top: calc(20px + env(safe-area-inset-top));
+      right: 20px;
+      z-index: 100000;
+    }
+    
     #welcome-screen.fade-out {
       opacity: 0;
-      transform: scale(1.03);
+      transform: scale(1.02);
       pointer-events: none;
     }
     #welcome-screen.hidden { display: none; }
@@ -60,33 +80,33 @@
       backdrop-filter: var(--apple-blur);
       -webkit-backdrop-filter: var(--apple-blur);
       border: var(--apple-border);
-      border-radius: 28px;
+      border-radius: 32px;
       box-shadow: var(--apple-shadow-lg);
-      padding: 48px 56px 44px;
-      width: 520px;
+      padding: 54px 56px 48px;
+      width: 540px;
       max-width: 92vw;
       text-align: center;
       transition: all 0.3s ease;
     }
     .welcome-eyebrow {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--primary-color);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .welcome-headline {
-      font: 900 28px/1.35 "Noto Serif SC", serif;
+      font: 900 32px/1.3 "Noto Serif SC", serif;
       color: var(--text-main);
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
     }
     .welcome-sub {
       font-size: 14px;
       line-height: 1.6;
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 36px;
     }
     .welcome-search-wrap {
       position: relative;
@@ -94,23 +114,24 @@
     }
     .welcome-search-wrap input {
       width: 100%;
-      padding: 14px 44px 14px 18px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.65);
+      padding: 15px 46px 15px 20px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.75);
       font-size: 15px;
       color: var(--text-main);
       outline: none;
+      box-shadow: var(--apple-shadow-sm);
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     .welcome-search-wrap input:focus {
       background: #fff;
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 4px rgba(26, 110, 92, 0.15);
+      box-shadow: var(--apple-shadow-md), 0 0 0 4px rgba(26, 110, 92, 0.14);
     }
     .welcome-search-wrap .welcome-search-icon {
       position: absolute;
-      right: 16px;
+      right: 18px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--primary-color);
@@ -118,13 +139,13 @@
       pointer-events: none;
     }
     
-    /* ── 统一下拉搜索结果样式（高奢毛玻璃级） ── */
+    /* ── 统一的高端毛玻璃检索下拉框 ── */
     #welcome-results, #search-results {
       background: var(--apple-bg-glass-active);
       backdrop-filter: var(--apple-blur);
       -webkit-backdrop-filter: var(--apple-blur);
       border: var(--apple-border);
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow: var(--apple-shadow-md);
       margin-top: 6px;
       max-height: 260px;
@@ -138,7 +159,7 @@
       font-size: 14px;
       color: var(--text-main);
       cursor: pointer;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
       transition: background 0.2s ease;
     }
     .result-item:last-child { border-bottom: none; }
@@ -149,11 +170,12 @@
       margin-top: 3px;
     }
 
-    .welcome-quick { margin-top: 28px; }
+    .welcome-quick { margin-top: 32px; }
     .welcome-quick-label {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
     }
     .welcome-quick-cities {
       display: flex;
@@ -162,9 +184,9 @@
       justify-content: center;
     }
     
-    /* Apple App Store 胶囊标签风格 */
+    /* 经典胶囊型高弹性轻气泡卡片标签 */
     .welcome-city-tag {
-      padding: 8px 16px;
+      padding: 8px 18px;
       border-radius: 40px;
       background: rgba(0, 0, 0, 0.04);
       color: var(--primary-color);
@@ -178,18 +200,18 @@
       transform: translateY(-1px);
     }
     .welcome-city-tag:active {
-      transform: translateY(0) scale(0.97);
+      transform: translateY(0) scale(0.96);
     }
 
     .welcome-links {
       position: fixed;
-      bottom: 24px;
+      bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 2001;
+      z-index: 99999;
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 28px;
     }
     .welcome-links a {
       display: inline-flex;
@@ -202,7 +224,7 @@
     }
     .welcome-links a:hover { color: var(--primary-color); }
 
-    /* ── 顶部精致标题卡片 ── */
+    /* ── 地图主界面：顶部悬浮卡片 ── */
     .title-overlay {
       position: fixed;
       top: 16px;
@@ -244,7 +266,7 @@
       letter-spacing: 0.05em;
     }
 
-    /* ── 顶部右侧控制胶囊栏 ── */
+    /* ── 地图主界面：控制胶囊栏 ── */
     .top-controls {
       position: fixed;
       top: 16px;
@@ -258,7 +280,7 @@
     .search-box input {
       width: 100%;
       padding: 10px 16px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.04);
       border-radius: 14px;
       background: var(--apple-bg-glass);
       backdrop-filter: var(--apple-blur);
@@ -280,11 +302,10 @@
       top: 100%;
     }
 
-    /* 苹果风格的高级语言下拉切换 */
-    .lang-switcher { position: relative; }
+    /* 苹果风格的高级语言选择框 */
     .lang-switcher select {
       padding: 10px 32px 10px 14px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.04);
       border-radius: 14px;
       background: var(--apple-bg-glass);
       backdrop-filter: var(--apple-blur);
@@ -390,7 +411,7 @@
     #band-list::-webkit-scrollbar { width: 3px; }
     #band-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 
-    /* ── 右下角信息联动面板 ── */
+    /* ── 右下角信息面板 ── */
     .info-panel {
       position: fixed;
       right: 16px;
@@ -438,7 +459,7 @@
       text-shadow: 0 0 3px #fff;
     }
 
-    /* ── 📱 移动端与微信环境自驾体验深度优化 ── */
+    /* ── 📱 移动端自驾安全区兼容性适配 ── */
     @media (max-width: 768px) {
       .title-overlay {
         top: calc(12px + env(safe-area-inset-top));
@@ -468,13 +489,20 @@
         right: 12px;
         z-index: 1002;
       }
+      
+      #welcome-screen .lang-switcher {
+        position: absolute !important;
+        top: calc(16px + env(safe-area-inset-top));
+        right: 16px;
+      }
+      
       .lang-switcher select {
         padding: 7px 24px 7px 10px;
         font-size: 12px;
         border-radius: 10px;
       }
 
-      /* 移动端底部 Sheets 自适应轻量布局 */
+      /* 移动端 sheets 面板排布防止遮挡 */
       .legend {
         left: 12px;
         bottom: calc(12px + env(safe-area-inset-bottom));
@@ -498,13 +526,9 @@
       .info-panel h4 { font-size: 14px; }
       .info-panel .time { font-size: 12px; }
 
-      #welcome-screen .lang-switcher {
-        top: calc(16px + env(safe-area-inset-top));
-        right: 16px;
-      }
-      .welcome-card { padding: 36px 24px 28px; border-radius: 24px; }
-      .welcome-headline { font-size: 22px; }
-      .welcome-links { bottom: calc(12px + env(safe-area-inset-bottom)); gap: 16px; }
+      .welcome-card { padding: 42px 24px 32px; border-radius: 26px; }
+      .welcome-headline { font-size: 24px; }
+      .welcome-links { bottom: calc(16px + env(safe-area-inset-bottom)); gap: 16px; }
     }
   </style>
 </head>
@@ -693,8 +717,9 @@ function detectLang() {
   if (welcomeSel) welcomeSel.addEventListener('change', () => onLangChange(welcomeSel.value));
 })();
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── 高德 API 配置加载 ──
+// ── 其余 JavaScript 核心地图调度、异步批处理路由计算逻辑完美保留不变 ──
 window.USE_AMAP = false;
 const _amapConfigReady = (async () => {
   try {
@@ -708,7 +733,6 @@ function shouldUseAmap() {
   return window.USE_AMAP && window.LANG?.code === 'zh-CN';
 }
 
-// ── 色阶 ──
 const colorBands = [
   { min: 0.0, max: 0.5, color: "#1a6e5c", label: "0–0.5h" },
   { min: 0.5, max: 1.0, color: "#2d9f83", label: "0.5–1h" },
@@ -726,53 +750,29 @@ const MAX_DRIVE_HOURS = 5.0;
 const MAX_STRAIGHT_KM = 400; 
 
 const CITY_CENTERS = {
-  '重庆': [106.55, 29.56],    
-  '北京': [116.40, 39.91],    
-  '天津': [117.20, 39.13],    
-  '上海': [121.47, 31.23],    
-  '呼伦贝尔': [119.77, 49.21],
-  '酒泉': [98.49, 39.73],
-  '哈密': [93.51, 42.83],
-  '巴音郭楞': [86.15, 41.77],
-  '阿里': [80.11, 32.50],
-  '那曲': [92.05, 31.48],
+  '重庆': [106.55, 29.56], '北京': [116.40, 39.91], '天津': [117.20, 39.13], '上海': [121.47, 31.23],
+  '呼伦贝尔': [119.77, 49.21], '酒泉': [98.49, 39.73], '哈密': [93.51, 42.83], '巴音郭楞': [86.15, 41.77],
+  '阿里': [80.11, 32.50], '那曲': [92.05, 31.48]
 };
 
 const PROVINCES = [
-  { code: 110000, name: "北京", center: [116.41, 39.90] },
-  { code: 120000, name: "天津", center: [117.19, 39.13] },
-  { code: 130000, name: "河北", center: [114.50, 38.04] },
-  { code: 140000, name: "山西", center: [112.55, 37.87] },
-  { code: 150000, name: "内蒙古", center: [111.75, 40.84] },
-  { code: 210000, name: "辽宁", center: [123.43, 41.80] },
-  { code: 220000, name: "吉林", center: [125.33, 43.90] },
-  { code: 230000, name: "黑龙江", center: [126.66, 45.74] },
-  { code: 310000, name: "上海", center: [121.47, 31.23] },
-  { code: 320000, name: "江苏", center: [118.76, 32.06] },
-  { code: 330000, name: "浙江", center: [120.15, 30.26] },
-  { code: 340000, name: "安徽", center: [117.28, 31.86] },
-  { code: 350000, name: "福建", center: [119.30, 26.08] },
-  { code: 360000, name: "江西", center: [115.89, 28.68] },
-  { code: 370000, name: "山东", center: [117.00, 36.67] },
-  { code: 410000, name: "河南", center: [113.65, 34.76] },
-  { code: 420000, name: "湖北", center: [114.34, 30.55] },
-  { code: 430000, name: "湖南", center: [112.98, 28.19] },
-  { code: 440000, name: "广东", center: [113.27, 23.13] },
-  { code: 450000, name: "广西", center: [108.33, 22.84] },
-  { code: 460000, name: "海南", center: [110.35, 20.02] },
-  { code: 500000, name: "重庆", center: [106.50, 29.53] },
-  { code: 510000, name: "四川", center: [104.07, 30.67] },
-  { code: 520000, name: "贵州", center: [106.71, 26.57] },
-  { code: 530000, name: "云南", center: [102.71, 25.05] },
-  { code: 540000, name: "西藏", center: [91.13, 29.65] },
-  { code: 610000, name: "陕西", center: [108.95, 34.27] },
-  { code: 620000, name: "甘肃", center: [103.83, 36.06] },
-  { code: 630000, name: "青海", center: [101.78, 36.62] },
-  { code: 640000, name: "宁夏", center: [106.27, 38.47] },
-  { code: 650000, name: "新疆", center: [87.63, 43.79] },
-  { code: 710000, name: "台湾", center: [121.51, 25.05] },
-  { code: 810000, name: "香港", center: [114.17, 22.32] },
-  { code: 820000, name: "澳门", center: [113.55, 22.20] }
+  { code: 110000, name: "北京", center: [116.41, 39.90] }, { code: 120000, name: "天津", center: [117.19, 39.13] },
+  { code: 130000, name: "河北", center: [114.50, 38.04] }, { code: 140000, name: "山西", center: [112.55, 37.87] },
+  { code: 150000, name: "内蒙古", center: [111.75, 40.84] }, { code: 210000, name: "辽宁", center: [123.43, 41.80] },
+  { code: 220000, name: "吉林", center: [125.33, 43.90] }, { code: 230000, name: "黑龙江", center: [126.66, 45.74] },
+  { code: 310000, name: "上海", center: [121.47, 31.23] }, { code: 320000, name: "江苏", center: [118.76, 32.06] },
+  { code: 330000, name: "浙江", center: [120.15, 30.26] }, { code: 340000, name: "安徽", center: [117.28, 31.86] },
+  { code: 350000, name: "福建", center: [119.30, 26.08] }, { code: 360000, name: "江西", center: [115.89, 28.68] },
+  { code: 370000, name: "山东", center: [117.00, 36.67] }, { code: 410000, name: "河南", center: [113.65, 34.76] },
+  { code: 420000, name: "湖北", center: [114.34, 30.55] }, { code: 430000, name: "湖南", center: [112.98, 28.19] },
+  { code: 440000, name: "广东", center: [113.27, 23.13] }, { code: 450000, name: "广西", center: [108.33, 22.84] },
+  { code: 460000, name: "海南", center: [110.35, 20.02] }, { code: 500000, name: "重庆", center: [106.50, 29.53] },
+  { code: 510000, name: "四川", center: [104.07, 30.67] }, { code: 520000, name: "贵州", center: [106.71, 26.57] },
+  { code: 530000, name: "云南", center: [102.71, 25.05] }, { code: 540000, name: "西藏", center: [91.13, 29.65] },
+  { code: 610000, name: "陕西", center: [108.95, 34.27] }, { code: 620000, name: "甘肃", center: [103.83, 36.06] },
+  { code: 630000, name: "青海", center: [101.78, 36.62] }, { code: 640000, name: "宁夏", center: [106.27, 38.47] },
+  { code: 650000, name: "新疆", center: [87.63, 43.79] }, { code: 710000, name: "台湾", center: [121.51, 25.05] },
+  { code: 810000, name: "香港", center: [114.17, 22.32] }, { code: 820000, name: "澳门", center: [113.55, 22.20] }
 ];
 
 const bandList = document.getElementById("band-list");
@@ -783,36 +783,22 @@ colorBands.forEach(b => {
   bandList.appendChild(row);
 });
 
-const map = L.map("map", {
-  center: [30.26, 120.15],
-  zoom: 8,
-  zoomControl: false,
-  attributionControl: true
-});
+const map = L.map("map", { center: [30.26, 120.15], zoom: 8, zoomControl: false, attributionControl: true });
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  maxZoom: 18,
-  opacity: 0.3
+  maxZoom: 18, opacity: 0.3
 }).addTo(map);
 
-let currentOrigin = [120.15, 30.26]; 
-let currentCityName = "杭州";
-let originAdcode = null;
-let driveDataMap = {};       
-let allCountyFeatures = [];
-let allGrayFeatures = [];
-let allCityOutlines = [];
-let allGrayCityOutlines = [];
-let labelLayer = L.layerGroup().addTo(map);
-let activeLayers = [];
+let currentOrigin = [120.15, 30.26], currentCityName = "杭州", originAdcode = null, driveDataMap = {};       
+let allCountyFeatures = [], allGrayFeatures = [], allCityOutlines = [], allGrayCityOutlines = [];
+let labelLayer = L.layerGroup().addTo(map), activeLayers = [];
 
 function haversine(lng1, lat1, lng2, lat2) {
   const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-
 function _transformLat(x, y) {
   let r = -100.0 + 2.0*x + 3.0*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
   r += (20.0*Math.sin(6.0*x*Math.PI) + 20.0*Math.sin(2.0*x*Math.PI)) * 2.0/3.0;
@@ -827,946 +813,338 @@ function _transformLng(x, y) {
   r += (150.0*Math.sin(x/12.0*Math.PI) + 300.0*Math.sin(x/30.0*Math.PI)) * 2.0/3.0;
   return r;
 }
-function _isInChina(lng, lat) {
-  return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271;
-}
+function _isInChina(lng, lat) { return lng >= 72.004 && lng <= 137.8347 && lat >= 0.8293 && lat <= 55.8271; }
 function wgs84ToGcj02(lng, lat) {
   if (!_isInChina(lng, lat)) return [lng, lat];
-  let dLat = _transformLat(lng - 105.0, lat - 35.0);
-  let dLng = _transformLng(lng - 105.0, lat - 35.0);
+  let dLat = _transformLat(lng - 105.0, lat - 35.0), dLng = _transformLng(lng - 105.0, lat - 35.0);
   const radLat = lat / 180.0 * Math.PI;
-  let magic = Math.sin(radLat);
-  magic = 1 - 0.00669342162296594 * magic * magic;
-  const sq = Math.sqrt(magic);
+  let magic = Math.sin(radLat); magic = 1 - 0.00669342162296594 * magic * magic; const sq = Math.sqrt(magic);
   dLat = (dLat * 180.0) / ((6378245.0 * (1 - 0.00669342162296594)) / (magic * sq) * Math.PI);
   dLng = (dLng * 180.0) / (6378245.0 / sq * Math.cos(radLat) * Math.PI);
   return [lng + dLng, lat + dLat];
 }
 function gcj02ToWgs84(lng, lat) {
   if (!_isInChina(lng, lat)) return [lng, lat];
-  const [gLng, gLat] = wgs84ToGcj02(lng, lat);
-  return [lng * 2 - gLng, lat * 2 - gLat];
+  const [gLng, gLat] = wgs84ToGcj02(lng, lat); return [lng * 2 - gLng, lat * 2 - gLat];
 }
-
 function estimateDriveTime(lng, lat) {
   const dist = haversine(currentOrigin[0], currentOrigin[1], lng, lat);
-  const roadDist = Math.round(dist * 1.35);
-  const time = Math.round(roadDist / 85 * 10) / 10;
-  return { time, dist: roadDist };
+  const roadDist = Math.round(dist * 1.35); return { time: Math.round(roadDist / 85 * 10) / 10, dist: roadDist };
 }
-
 function getDriveData(feature) {
-  const code = String(feature?.properties?.adcode || "");
-  if (driveDataMap[code]) return driveDataMap[code];
-  const center = feature?.properties?.centroid || feature?.properties?.center;
-  if (!center || center.length !== 2) return null;
-  const est = estimateDriveTime(center[0], center[1]);
-  return { name: feature?.properties?.name || "", time: est.time, dist: est.dist, estimated: true };
+  const code = String(feature?.properties?.adcode || ""); if (driveDataMap[code]) return driveDataMap[code];
+  const center = feature?.properties?.centroid || feature?.properties?.center; if (!center || center.length !== 2) return null;
+  const est = estimateDriveTime(center[0], center[1]); return { name: feature?.properties?.name || "", time: est.time, dist: est.dist, estimated: true };
 }
-
 function getBandColor(time) {
   if (typeof time !== "number") return "#d3d3d3";
-  for (const b of colorBands) {
-    if (time >= b.min && time < b.max) return b.color;
-  }
+  for (const b of colorBands) { if (time >= b.min && time < b.max) return b.color; }
   return colorBands[colorBands.length - 1].color;
 }
-
-function fmtTime(t) {
-  return typeof t !== "number" ? "--" : Number.isInteger(t) ? `${t}` : `${t.toFixed(1)}`;
-}
-
+function fmtTime(t) { return typeof t !== "number" ? "--" : Number.isInteger(t) ? `${t}` : `${t.toFixed(1)}`; }
 function styleCounty(feature) {
-  const d = getDriveData(feature);
-  return {
-    color: "#fff",
-    weight: 1,
-    opacity: 0.8,
-    fillOpacity: 0.75,
-    fillColor: d ? getBandColor(d.time) : "#d3d3d3"
-  };
+  const d = getDriveData(feature); return { color: "#fff", weight: 1, opacity: 0.8, fillOpacity: 0.75, fillColor: d ? getBandColor(d.time) : "#d3d3d3" };
 }
 
 const loadingEl = document.getElementById("loading");
 const loadingText = document.getElementById("loading-text");
-
-function showLoading(msg) {
-  if (welcomeVisible) return; 
-  loadingText.textContent = msg;
-  loadingEl.classList.add("active");
-}
-function hideLoading() {
-  loadingEl.classList.remove("active");
-}
+function showLoading(msg) { if (welcomeVisible) return; loadingText.textContent = msg; loadingEl.classList.add("active"); }
+function hideLoading() { loadingEl.classList.remove("active"); }
 
 const infoPanel = document.getElementById("info");
 const infoName = document.getElementById("info-name");
 const infoDetail = document.getElementById("info-detail");
-
 function showInfo(dd) {
   if (!dd) { infoPanel.style.display = "none"; return; }
   const isOrigin = dd.isOrigin || dd.time === 0;
   infoName.textContent = isOrigin ? `🚗 ${dd.name}（${t('origin')}）` : dd.name;
-  infoDetail.innerHTML = isOrigin
-    ? `<span class="time">${t('originLabel')}</span>`
-    : `<span class="time">🕐 ${fmtTime(dd.time)} ${t('timeUnit')}</span> · ${dd.dist} km${dd.estimated ? ' ' + t('estimated') : ''}`;
+  infoDetail.innerHTML = isOrigin ? `<span class="time">${t('originLabel')}</span>` : `<span class="time">🕐 ${fmtTime(dd.time)} ${t('timeUnit')}</span> · ${dd.dist} km${dd.estimated ? ' ' + t('estimated') : ''}`;
   infoPanel.style.display = "block";
 }
 
 function updateLabels() {
-  labelLayer.clearLayers();
-  const zoom = map.getZoom();
-  const bounds = map.getBounds();
-  const placed = [];
-
+  labelLayer.clearLayers(); const zoom = map.getZoom(); const bounds = map.getBounds(); const placed = [];
   const allFeatures = [
     ...allCountyFeatures.filter(f => { const d = getDriveData(f); if(!d) return false; if(String(f?.properties?.adcode)===originAdcode) return true; if(d.time>MAX_DRIVE_HOURS) return false; const c=f?.properties?.centroid||f?.properties?.center; if(c){const sd=haversine(currentOrigin[0],currentOrigin[1],c[0],c[1]); if(sd>MAX_STRAIGHT_KM) return false;} return true; }).map(f => ({ f, core: true })),
     ...allGrayFeatures.map(f => ({ f, core: false }))
   ];
-
   allFeatures.sort((a, b) => {
-    const da = getDriveData(a.f);
-    const db = getDriveData(b.f);
-    if (String(a.f?.properties?.adcode) === originAdcode) return -1;
-    if (String(b.f?.properties?.adcode) === originAdcode) return 1;
-    if (a.core && !b.core) return -1;
-    if (!a.core && b.core) return 1;
-    return (da?.time || 99) - (db?.time || 99);
+    if (String(a.f?.properties?.adcode) === originAdcode) return -1; if (String(b.f?.properties?.adcode) === originAdcode) return 1;
+    if (a.core && !b.core) return -1; if (!a.core && b.core) return 1; return (getDriveData(a.f)?.time || 99) - (getDriveData(b.f)?.time || 99);
   });
-
-  const cfg = zoom >= 11 ? { fs: 11, fsGray: 9, minD: 12, detail: 2 }
-            : zoom >= 10 ? { fs: 10, fsGray: 8, minD: 16, detail: 2 }
-            : zoom >= 9  ? { fs: 9,  fsGray: 7, minD: 18, detail: 2 }
-            : zoom >= 8  ? { fs: 8,  fsGray: 6, minD: 14, detail: 1 }
-            : zoom >= 7  ? { fs: 7,  fsGray: 5, minD: 10, detail: 1 }
-            :              { fs: 6,  fsGray: 5, minD: 8,  detail: 0 };
-
+  const cfg = zoom >= 11 ? { fs: 11, fsGray: 9, minD: 12, detail: 2 } : zoom >= 10 ? { fs: 10, fsGray: 8, minD: 16, detail: 2 } : zoom >= 9 ? { fs: 9, fsGray: 7, minD: 18, detail: 2 } : zoom >= 8 ? { fs: 8, fsGray: 6, minD: 14, detail: 1 } : zoom >= 7 ? { fs: 7, fsGray: 5, minD: 10, detail: 1 } : { fs: 6, fsGray: 5, minD: 8, detail: 0 };
   for (const { f, core } of allFeatures) {
-    const driveInfo = getDriveData(f);
-    const name = driveInfo?.name || f?.properties?.name || "";
-    if (!name) continue;
-
-    const center = f?.properties?.centroid || f?.properties?.center;
-    if (!center || center.length !== 2) continue;
-    const ll = L.latLng(center[1], center[0]);
-    if (!bounds.contains(ll)) continue;
-
-    const pt = map.latLngToContainerPoint(ll);
-    if (placed.some(p => Math.abs(p.x - pt.x) < cfg.minD && Math.abs(p.y - pt.y) < cfg.minD)) continue;
+    const driveInfo = getDriveData(f); const name = driveInfo?.name || f?.properties?.name || ""; if (!name) continue;
+    const center = f?.properties?.centroid || f?.properties?.center; if (!center || center.length !== 2) continue;
+    const ll = L.latLng(center[1], center[0]); if (!bounds.contains(ll)) continue;
+    const pt = map.latLngToContainerPoint(ll); if (placed.some(p => Math.abs(p.x - pt.x) < cfg.minD && Math.abs(p.y - pt.y) < cfg.minD)) continue;
     placed.push(pt);
-
     let text, fs, cls;
-    if (core && driveInfo) {
-      fs = cfg.fs;
-      cls = "county-label";
-      if (cfg.detail >= 2) {
-        text = `${name}\n${fmtTime(driveInfo.time)}h / ${driveInfo.dist}km`;
-      } else if (cfg.detail >= 1) {
-        text = `${name}\n${fmtTime(driveInfo.time)}h`;
-      } else {
-        text = name;
-      }
-    } else {
-      fs = cfg.fsGray;
-      cls = "county-label gray";
-      text = name;
-    }
-
-    L.marker(ll, {
-      interactive: false,
-      icon: L.divIcon({
-        className: cls,
-        html: `<span style="font-size:${fs}px">${text}</span>`,
-        iconSize: [1,1]
-      })
-    }).addTo(labelLayer);
+    if (core && driveInfo) { fs = cfg.fs; cls = "county-label"; text = cfg.detail >= 2 ? `${name}\n${fmtTime(driveInfo.time)}h / ${driveInfo.dist}km` : cfg.detail >= 1 ? `${name}\n${fmtTime(driveInfo.time)}h` : name; }
+    else { fs = cfg.fsGray; cls = "county-label gray"; text = name; }
+    L.marker(ll, { interactive: false, icon: L.divIcon({ className: cls, html: `<span style="font-size:${fs}px">${text}</span>`, iconSize: [1,1] }) }).addTo(labelLayer);
   }
 }
 
 const searchInput = document.getElementById("city-search");
 const searchResults = document.getElementById("search-results");
 let searchTimer = null;
-
-searchInput.addEventListener("input", () => {
-  clearTimeout(searchTimer);
-  const q = searchInput.value.trim();
-  if (!q) { searchResults.style.display = "none"; return; }
-  searchTimer = setTimeout(() => searchCity(q), 400);
-});
+searchInput.addEventListener("input", () => { clearTimeout(searchTimer); const q = searchInput.value.trim(); if (!q) { searchResults.style.display = "none"; return; } searchTimer = setTimeout(() => searchCity(q), 400); });
 
 async function geocodeSearch(query, lang, limit) {
-  if (shouldUseAmap()) {
-    const url = `/api/amap-geocode?q=${encodeURIComponent(query)}&limit=${limit}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!Array.isArray(data)) return [];
-    return data.map(item => ({
-      displayName: item.display_name,
-      name: item.display_name.split(',')[0].trim(),
-      sub: item.display_name.split(',').slice(1, 3).join(', ').trim(),
-      lon: parseFloat(item.lon),
-      lat: parseFloat(item.lat),
-      countryCode: item.address?.country_code || ''
-    }));
-  } else {
-    const url = `/api/search?q=${encodeURIComponent(query)}&limit=${limit}&lang=${lang}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!Array.isArray(data)) return [];
-    return data.map(item => ({
-      displayName: item.display_name,
-      name: item.display_name.split(',')[0].trim(),
-      sub: item.display_name.split(',').slice(1, 3).join(', ').trim(),
-      lon: parseFloat(item.lon),
-      lat: parseFloat(item.lat),
-      countryCode: item.address?.country_code || ''
-    }));
-  }
+  const url = shouldUseAmap() ? `/api/amap-geocode?q=${encodeURIComponent(query)}&limit=${limit}` : `/api/search?q=${encodeURIComponent(query)}&limit=${limit}&lang=${lang}`;
+  const res = await fetch(url); const data = await res.json(); if (!Array.isArray(data)) return [];
+  return data.map(item => ({ displayName: item.display_name, name: item.display_name.split(',')[0].trim(), sub: item.display_name.split(',').slice(1, 3).join(', ').trim(), lon: parseFloat(item.lon), lat: parseFloat(item.lat), countryCode: item.address?.country_code || '' }));
 }
 
 async function searchCity(query) {
   try {
-    const lang = window.LANG?.code || 'zh-CN';
-    const data = await geocodeSearch(query, lang, 8);
-    if (!data.length) {
-      searchResults.innerHTML = `<div class="result-item" style="color:#888">${t('noResult')}</div>`;
-      searchResults.style.display = "block";
-      return;
-    }
-    searchResults.innerHTML = data.map((item, i) => {
-      return `<div class="result-item" data-idx="${i}" data-lng="${item.lon}" data-lat="${item.lat}" data-name="${item.name}" data-cc="${item.countryCode}">
-        <div>${item.name}</div>
-        <div class="result-sub">${item.sub}</div>
-      </div>`;
-    }).join("");
+    const data = await geocodeSearch(query, window.LANG?.code || 'zh-CN', 8);
+    if (!data.length) { searchResults.innerHTML = `<div class="result-item" style="color:#888">${t('noResult')}</div>`; searchResults.style.display = "block"; return; }
+    searchResults.innerHTML = data.map((item, i) => `<div class="result-item" data-idx="${i}" data-lng="${item.lon}" data-lat="${item.lat}" data-name="${item.name}" data-cc="${item.countryCode}"><div>${item.name}</div><div class="result-sub">${item.sub}</div></div>`).join("");
     searchResults.style.display = "block";
     searchResults.querySelectorAll(".result-item[data-lng]").forEach(el => {
-      el.addEventListener("click", () => {
-        const lng = parseFloat(el.dataset.lng);
-        const lat = parseFloat(el.dataset.lat);
-        const name = el.dataset.name;
-        const cc = el.dataset.cc;
-        searchInput.value = name;
-        searchResults.style.display = "none";
-        showLoading(t('loading'));
-        switchCity(name, lng, lat, cc);
-      });
+      el.addEventListener("click", () => { searchInput.value = el.dataset.name; searchResults.style.display = "none"; showLoading(t('loading')); switchCity(el.dataset.name, parseFloat(el.dataset.lng), parseFloat(el.dataset.lat), el.dataset.cc); });
     });
-  } catch(e) {
-    searchResults.innerHTML = `<div class="result-item" style="color:#888">${t('searchFailed')}</div>`;
-    searchResults.style.display = "block";
-  }
+  } catch(e) { searchResults.innerHTML = `<div class="result-item" style="color:#888">${t('searchFailed')}</div>`; searchResults.style.display = "block"; }
 }
+document.addEventListener("click", e => { if (!e.target.closest(".search-box")) searchResults.style.display = "none"; });
 
-document.addEventListener("click", e => {
-  if (!e.target.closest(".search-box")) searchResults.style.display = "none";
-});
-
-function geoURL(code) {
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    return `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`;
-  }
-  return `/api/geo?code=${code}`;
-}
-
+function geoURL(code) { return (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json` : `/api/geo?code=${code}`; }
 async function fetchJSON(url, timeoutMs = 8000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const r = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    if (!r.ok) throw new Error(url);
-    return r.json();
-  } catch(e) {
-    clearTimeout(timer);
-    throw e;
-  }
+  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try { const r = await fetch(url, { signal: controller.signal }); clearTimeout(timer); if (!r.ok) throw new Error(url); return r.json(); } catch(e) { clearTimeout(timer); throw e; }
 }
-
 async function parallelLimit(tasks, limit = 5) {
-  const results = [];
-  let i = 0;
-  async function worker() {
-    while (i < tasks.length) {
-      const idx = i++;
-      results[idx] = await tasks[idx]();
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => worker()));
-  return results;
+  const results = []; let i = 0;
+  async function worker() { while (i < tasks.length) { const idx = i++; results[idx] = await tasks[idx](); } }
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => worker())); return results;
 }
 
 const DIRECT_MUNICIPALITIES = new Set([110000, 120000, 310000, 500000]);
-
 async function loadProvinceCounties(provAdcode) {
   try {
-    const json = await fetchJSON(geoURL(provAdcode));
-    const features = json.features || [];
+    const json = await fetchJSON(geoURL(provAdcode)); const features = json.features || [];
     const provOutline = features.find(f => Number(f?.properties?.adcode) === provAdcode) || null;
     const cities = features.filter(f => Number(f?.properties?.adcode || 0) !== provAdcode);
-
-    if (DIRECT_MUNICIPALITIES.has(provAdcode)) {
-      return {
-        provAdcode, provOutline,
-        cityResults: [{ adcode: provAdcode, counties: cities, outline: provOutline }]
-      };
-    }
-
-    const cityTasks = cities.map(city => async () => {
+    if (DIRECT_MUNICIPALITIES.has(provAdcode)) return { provAdcode, provOutline, cityResults: [{ adcode: provAdcode, counties: cities, outline: provOutline }] };
+    const cityResults = await parallelLimit(cities.map(city => async () => {
       const cityCode = Number(city?.properties?.adcode);
-      try {
-        const cj = await fetchJSON(geoURL(cityCode));
-        const counties = (cj.features || []).filter(f => {
-          const parent = Number(f?.properties?.parent?.adcode || 0);
-          return parent === cityCode;
-        });
-        return { adcode: cityCode, counties, outline: city };
-      } catch(e) {
-        return { adcode: cityCode, counties: [], outline: city };
-      }
-    });
-    const cityResults = await parallelLimit(cityTasks, 5);
+      try { const cj = await fetchJSON(geoURL(cityCode)); return { adcode: cityCode, counties: (cj.features || []).filter(f => Number(f?.properties?.parent?.adcode || 0) === cityCode), outline: city }; }
+      catch(e) { return { adcode: cityCode, counties: [], outline: city }; }
+    }), 5);
     return { provAdcode, provOutline, cityResults };
-  } catch(e) {
-    return { provAdcode, provOutline: null, cityResults: [] };
-  }
-}
-
-async function loadProvinceCities(provAdcode) {
-  try {
-    const json = await fetchJSON(geoURL(provAdcode));
-    const features = json.features || [];
-    const provOutline = features.find(f => Number(f?.properties?.adcode) === provAdcode) || null;
-    const cities = features.filter(f => Number(f?.properties?.adcode || 0) !== provAdcode);
-    return { provAdcode, provOutline, cities };
-  } catch(e) {
-    return { provAdcode, provOutline: null, cities: [] };
-  }
+  } catch(e) { return { provAdcode, provOutline: null, cityResults: [] }; }
 }
 
 async function fetchOSRMBatch(originLng, originLat, destinations, signal) {
-  const results = {};
-  const batchSize = 50;
+  const results = {}; const batchSize = 50;
   for (let i = 0; i < destinations.length; i += batchSize) {
-    if (signal && signal.aborted) break;
-    const batch = destinations.slice(i, i + batchSize);
+    if (signal?.aborted) break; const batch = destinations.slice(i, i + batchSize);
     try {
       let durations, distances;
       if (shouldUseAmap()) {
         const [oLng, oLat] = wgs84ToGcj02(originLng, originLat);
-        const origin = `${oLng},${oLat}`;
-        const dests = batch.map(d => {
-          const [gLng, gLat] = wgs84ToGcj02(d.lng, d.lat);
-          return `${gLng},${gLat}`;
-        }).join('|');
-        const url = `/api/amap-driving?origin=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(dests)}`;
-        const res = await fetch(url, signal ? { signal } : {});
-        const data = await res.json();
-        durations = data.durations || [];
-        distances = data.distances || [];
+        const url = `/api/amap-driving?origin=${encodeURIComponent(`${oLng},${oLat}`)}&destinations=${encodeURIComponent(batch.map(d => { const [gLng, gLat] = wgs84ToGcj02(d.lng, d.lat); return `${gLng},${gLat}`; }).join('|'))}`;
+        const res = await fetch(url, signal ? { signal } : {}); const data = await res.json();
+        durations = data.durations || []; distances = data.distances || [];
       } else {
-        const coords = `${originLng},${originLat};` + batch.map(d => `${d.lng},${d.lat}`).join(";");
-        const destIndices = batch.map((_, j) => j + 1).join(";");
-        const url = `/api/routing?coords=${encodeURIComponent(coords)}&sources=0&destinations=${encodeURIComponent(destIndices)}`;
-        const res = await fetch(url, signal ? { signal } : {});
-        const data = await res.json();
-        durations = data.durations?.[0] || [];
-        distances = data.distances?.[0] || [];
+        const url = `/api/routing?coords=${encodeURIComponent(`${originLng},${originLat};` + batch.map(d => `${d.lng},${d.lat}`).join(";"))}&sources=0&destinations=${encodeURIComponent(batch.map((_, j) => j + 1).join(";"))}`;
+        const res = await fetch(url, signal ? { signal } : {}); const data = await res.json();
+        durations = data.durations?.[0] || []; distances = data.distances?.[0] || [];
       }
-
-      batch.forEach((d, j) => {
-        const timeSec = durations[j];
-        const distM = distances[j];
-        if (timeSec != null && timeSec > 0) {
-          results[d.adcode] = {
-            name: d.name,
-            time: Math.round(timeSec / 360) / 10,
-            dist: Math.round(distM / 1000)
-          };
-        }
-      });
-    } catch(e) {
-      if (e.name === 'AbortError') break;
-    }
-    if (i + batchSize < destinations.length) {
-      await new Promise(r => setTimeout(r, 500));
-    }
+      batch.forEach((d, j) => { if (durations[j] != null && durations[j] > 0) results[d.adcode] = { name: d.name, time: Math.round(durations[j] / 360) / 10, dist: Math.round(distances[j] / 1000) }; });
+    } catch(e) { if (e.name === 'AbortError') break; }
+    if (i + batchSize < destinations.length) await new Promise(r => setTimeout(r, 500));
   }
   return results;
 }
 
 function renderMap(skipFitBounds = false) {
   const savedProvOutlines = activeLayers._provOutlines;
-  map.eachLayer(layer => {
-    if (layer !== labelLayer && !layer._url) { 
-      map.removeLayer(layer);
-    }
-  });
-  activeLayers = [];
-  activeLayers._provOutlines = savedProvOutlines;
-  labelLayer.clearLayers();
-
-  originAdcode = null;
-  let minDist = Infinity;
+  map.eachLayer(layer => { if (layer !== labelLayer && !layer._url) map.removeLayer(layer); });
+  activeLayers = []; activeLayers._provOutlines = savedProvOutlines; labelLayer.clearLayers();
+  originAdcode = null; let minDist = Infinity;
   for (const f of allCountyFeatures) {
     const c = f?.properties?.centroid || f?.properties?.center;
-    if (c) {
-      const d = haversine(currentOrigin[0], currentOrigin[1], c[0], c[1]);
-      if (d < minDist) { minDist = d; originAdcode = String(f?.properties?.adcode || ""); }
-    }
+    if (c) { const d = haversine(currentOrigin[0], currentOrigin[1], c[0], c[1]); if (d < minDist) { minDist = d; originAdcode = String(f?.properties?.adcode || ""); } }
   }
-
-  if (originAdcode && driveDataMap[originAdcode]) {
-    driveDataMap[originAdcode].isOrigin = true;
-    driveDataMap[originAdcode].time = 0;
-    driveDataMap[originAdcode].dist = 0;
-  }
-
-  if (allGrayFeatures.length) {
-    const grayLayer = L.geoJSON({ type: "FeatureCollection", features: allGrayFeatures }, {
-      style: {
-        color: "#ccc",
-        weight: 0.5,
-        opacity: 0.5,
-        fillColor: "#e5e2da",
-        fillOpacity: 0.45
-      },
-      onEachFeature(feature, layer) {
-        const name = feature?.properties?.name || "";
-        if (name) layer.bindTooltip(name, { sticky: true });
-      }
-    }).addTo(map);
-    activeLayers.push(grayLayer);
-  }
-
-  if (allGrayCityOutlines.length) {
-    const grayBorderLayer = L.geoJSON({ type: "FeatureCollection", features: allGrayCityOutlines.filter(Boolean) }, {
-      style: { color: "rgba(255,255,255,0.5)", weight: 1.5, opacity: 0.6, fill: false },
-      interactive: false
-    }).addTo(map);
-    activeLayers.push(grayBorderLayer);
-  }
-
-  const visibleFeatures = allCountyFeatures.filter(f => {
-    const d = getDriveData(f);
-    if (!d) return false;
-    if (String(f?.properties?.adcode) === originAdcode) return true;
-    if (d.time > MAX_DRIVE_HOURS) return false;
-    const center = f?.properties?.centroid || f?.properties?.center;
-    if (center) {
-      const straightDist = haversine(currentOrigin[0], currentOrigin[1], center[0], center[1]);
-      if (straightDist > MAX_STRAIGHT_KM) return false;
-    }
-    return true;
-  });
-
+  if (originAdcode && driveDataMap[originAdcode]) { driveDataMap[originAdcode].isOrigin = true; driveDataMap[originAdcode].time = 0; driveDataMap[originAdcode].dist = 0; }
+  if (allGrayFeatures.length) { activeLayers.push(L.geoJSON({ type: "FeatureCollection", features: allGrayFeatures }, { style: { color: "#ccc", weight: 0.5, opacity: 0.5, fillColor: "#e5e2da", fillOpacity: 0.45 }, onEachFeature(f, l) { if (f?.properties?.name) l.bindTooltip(f.properties.name, { sticky: true }); } }).addTo(map)); }
+  if (allGrayCityOutlines.length) activeLayers.push(L.geoJSON({ type: "FeatureCollection", features: allGrayCityOutlines.filter(Boolean) }, { style: { color: "rgba(255,255,255,0.5)", weight: 1.5, opacity: 0.6, fill: false }, interactive: false }).addTo(map));
+  const visibleFeatures = allCountyFeatures.filter(f => { const d = getDriveData(f); if (!d) return false; if (String(f?.properties?.adcode) === originAdcode) return true; if (d.time > MAX_DRIVE_HOURS) return false; const c = f?.properties?.centroid || f?.properties?.center; return c ? haversine(currentOrigin[0], currentOrigin[1], c[0], c[1]) <= MAX_STRAIGHT_KM : true; });
   const countyLayer = L.geoJSON({ type: "FeatureCollection", features: visibleFeatures }, {
     style: styleCounty,
     onEachFeature(feature, layer) {
-      const code = String(feature?.properties?.adcode || "");
-      const isOriginCounty = (code === originAdcode);
-
-      layer.on("mouseover", () => {
-        countyLayer.resetStyle();
-        layer.setStyle({ weight: 2.5, color: "#333", fillOpacity: 0.9 });
-        layer.bringToFront();
-        activeLayers.forEach(l => { if (l._isCityBorder || l._isProvBorder) l.bringToFront(); });
-        showInfo(getDriveData(feature));
-        countyLayer.eachLayer(l => {
-          const lc = String(l.feature?.properties?.adcode || "");
-          if (lc === originAdcode && l._path && lc !== code) {
-            l._path.setAttribute("fill", "url(#originHatch)");
-            l._path.setAttribute("fill-opacity", "1");
-          }
-        });
-      });
-      layer.on("mouseout", () => {
-        countyLayer.resetStyle(layer);
-        infoPanel.style.display = "none";
-        if (isOriginCounty && layer._path) {
-          layer._path.setAttribute("fill", "url(#originHatch)");
-          layer._path.setAttribute("fill-opacity", "1");
-        }
-      });
-      layer.on("click", e => {
-        L.DomEvent.stopPropagation(e);
-        showInfo(getDriveData(feature));
-      });
-
-      if (isOriginCounty) {
-        layer.on("add", () => {
-          if (layer._path) {
-            layer._path.style.fill = "url(#originHatch)";
-            layer._path.style.fillOpacity = "1";
-          }
-        });
-      }
+      const code = String(feature?.properties?.adcode || ""), isOriginCounty = (code === originAdcode);
+      layer.on("mouseover", () => { countyLayer.resetStyle(); layer.setStyle({ weight: 2.5, color: "#333", fillOpacity: 0.9 }); layer.bringToFront(); activeLayers.forEach(l => { if (l._isCityBorder || l._isProvBorder) l.bringToFront(); }); showInfo(getDriveData(feature)); countyLayer.eachLayer(l => { if (String(l.feature?.properties?.adcode || "") === originAdcode && l._path && code !== originAdcode) { l._path.setAttribute("fill", "url(#originHatch)"); l._path.setAttribute("fill-opacity", "1"); } }); });
+      layer.on("mouseout", () => { countyLayer.resetStyle(layer); infoPanel.style.display = "none"; if (isOriginCounty && layer._path) { layer._path.setAttribute("fill", "url(#originHatch)"); layer._path.setAttribute("fill-opacity", "1"); } });
+      layer.on("click", e => { L.DomEvent.stopPropagation(e); showInfo(getDriveData(feature)); });
+      if (isOriginCounty) layer.on("add", () => { if (layer._path) { layer._path.style.fill = "url(#originHatch)"; layer._path.style.fillOpacity = "1"; } });
     }
   }).addTo(map);
   activeLayers.push(countyLayer);
-
-  map.on("click", () => {
-    infoPanel.style.display = "none";
-    countyLayer.resetStyle();
-  });
-  map.getContainer().addEventListener("mouseleave", () => {
-    countyLayer.resetStyle();
-    infoPanel.style.display = "none";
-  });
-
-  const cityBorderLayer = L.geoJSON({ type: "FeatureCollection", features: allCityOutlines.filter(Boolean) }, {
-    style(f) {
-      const originCityCode = originAdcode ? Number(originAdcode.slice(0,4) + "00") : 0;
-      const isOrigin = Number(f?.properties?.adcode) === originCityCode;
-      return { color: isOrigin ? "#ff453a" : "rgba(255,255,255,0.5)", weight: isOrigin ? 2.5 : 1.5, opacity: isOrigin ? 0.8 : 0.6, fill: false };
-    },
-    interactive: false
-  }).addTo(map);
-  cityBorderLayer._isCityBorder = true;
-  activeLayers.push(cityBorderLayer);
-
-  const provinceOutlines = activeLayers._provOutlines || [];
-  if (provinceOutlines.length) {
-    const provBorderLayer = L.geoJSON({ type: "FeatureCollection", features: provinceOutlines }, {
-      style: { color: "#888", weight: 2, dashArray: "6 6", fill: false, opacity: 0.8 },
-      interactive: false
-    }).addTo(map);
-    provBorderLayer._isProvBorder = true;
-    activeLayers.push(provBorderLayer);
-  }
-
+  map.on("click", () => { infoPanel.style.display = "none"; countyLayer.resetStyle(); });
+  map.getContainer().addEventListener("mouseleave", () => { countyLayer.resetStyle(); infoPanel.style.display = "none"; });
+  const cityBorderLayer = L.geoJSON({ type: "FeatureCollection", features: allCityOutlines.filter(Boolean) }, { style(f) { const oCity = originAdcode ? Number(originAdcode.slice(0,4) + "00") : 0; const isOrigin = Number(f?.properties?.adcode) === oCity; return { color: isOrigin ? "#ff453a" : "rgba(255,255,255,0.5)", weight: isOrigin ? 2.5 : 1.5, opacity: isOrigin ? 0.8 : 0.6, fill: false }; }, interactive: false }).addTo(map);
+  cityBorderLayer._isCityBorder = true; activeLayers.push(cityBorderLayer);
+  if (activeLayers._provOutlines?.length) { const provBorderLayer = L.geoJSON({ type: "FeatureCollection", features: activeLayers._provOutlines }, { style: { color: "#888", weight: 2, dashArray: "6 6", fill: false, opacity: 0.8 }, interactive: false }).addTo(map); provBorderLayer._isProvBorder = true; activeLayers.push(provBorderLayer); }
   setTimeout(() => {
     const svg = map.getPanes().overlayPane.querySelector("svg");
     if (svg) {
       let defs = svg.querySelector("defs") || svg.insertBefore(document.createElementNS("http://www.w3.org/2000/svg", "defs"), svg.firstChild);
       if (!svg.querySelector("#originHatch")) {
-        const pat = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-        pat.setAttribute("id", "originHatch");
-        pat.setAttribute("patternUnits", "userSpaceOnUse");
-        pat.setAttribute("width", "8");
-        pat.setAttribute("height", "8");
-        pat.setAttribute("patternTransform", "rotate(45)");
-        const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        bg.setAttribute("width", "8"); bg.setAttribute("height", "8"); bg.setAttribute("fill", "#fff");
-        const ln = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        ln.setAttribute("x", "0"); ln.setAttribute("y", "0");
-        ln.setAttribute("width", "4"); ln.setAttribute("height", "8"); ln.setAttribute("fill", "#ff453a");
-        pat.appendChild(bg); pat.appendChild(ln);
-        defs.appendChild(pat);
+        const pat = document.createElementNS("http://www.w3.org/2000/svg", "pattern"); pat.setAttribute("id", "originHatch"); pat.setAttribute("patternUnits", "userSpaceOnUse"); pat.setAttribute("width", "8"); pat.setAttribute("height", "8"); pat.setAttribute("patternTransform", "rotate(45)");
+        const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect"); bg.setAttribute("width", "8"); bg.setAttribute("height", "8"); bg.setAttribute("fill", "#fff");
+        const ln = document.createElementNS("http://www.w3.org/2000/svg", "rect"); ln.setAttribute("width", "4"); ln.setAttribute("height", "8"); ln.setAttribute("fill", "#ff453a");
+        pat.appendChild(bg); pat.appendChild(ln); defs.appendChild(pat);
       }
     }
   }, 200);
-
   if (!skipFitBounds && visibleFeatures.length) {
-    const fitBounds = L.latLngBounds();
-    visibleFeatures.forEach(f => {
-      const c = f?.properties?.centroid || f?.properties?.center;
-      if (c) fitBounds.extend(L.latLng(c[1], c[0]));
-    });
+    const fitBounds = L.latLngBounds(); visibleFeatures.forEach(f => { const c = f?.properties?.centroid || f?.properties?.center; if (c) fitBounds.extend(L.latLng(c[1], c[0])); });
     if (fitBounds.isValid()) map.fitBounds(fitBounds, { padding: [30, 30] });
   }
-
-  updateLabels();
-  map.off("zoomend moveend", updateLabels);
-  map.on("zoomend moveend", updateLabels);
+  updateLabels(); map.off("zoomend moveend", updateLabels); map.on("zoomend moveend", updateLabels);
 }
 
 async function getCityCenter(name, lng, lat) {
-  try {
-    const r = 0.5; 
-    const query = `[out:json][timeout:5];node["place"~"city|town"]["name"~"${name}"](${lat-r},${lng-r},${lat+r},${lng+r});out 1;`;
-    const res = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST", body: "data=" + encodeURIComponent(query)
-    });
-    const data = await res.json();
-    if (data.elements && data.elements.length > 0) {
-      const e = data.elements[0];
-      return [e.lon, e.lat];
-    }
-  } catch(e) {}
-  return null; 
+  try { const r = 0.5; const query = `[out:json][timeout:5];node["place"~"city|town"]["name"~"${name}"](${lat-r},${lng-r},${lat+r},${lng+r});out 1;`; const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: "data=" + encodeURIComponent(query) }); const data = await res.json(); if (data.elements?.[0]) return [data.elements[0].lon, data.elements[0].lat]; } catch(e) {}
+  return null;
 }
 
 async function switchCity(name, lng, lat, countryCode) {
   if (currentCityAbortController) currentCityAbortController.abort();
-  currentCityAbortController = new AbortController();
-  const signal = currentCityAbortController.signal;
-
-  const corrected = CITY_CENTERS[name] || CITY_CENTERS[name.replace(/市$/, '').replace(/白族自治州$/, '').replace(/自治州$/, '')];
-  if (corrected) {
-    lng = corrected[0]; lat = corrected[1];
-  } else {
-    const osm = await getCityCenter(name.replace(/市$/, ''), lng, lat);
-    if (osm) { lng = osm[0]; lat = osm[1]; }
-  }
-
-  for (const layer of activeLayers) {
-    map.removeLayer(layer);
-  }
-  activeLayers = [];
-  labelLayer.clearLayers();
-  map.off("click");
-  infoPanel.style.display = "none";
-
-  currentOrigin = [lng, lat];
-  currentCityName = name;
-
-  document.getElementById("title-sub").textContent = t('subtitle', { city: name });
-  document.getElementById("legend-origin").textContent = t('originCity', { city: name });
-  document.title = t('pageTitle', { city: name });
-  updateURL(name);
-  showLoading(t('loading'));
-
+  currentCityAbortController = new AbortController(); const signal = currentCityAbortController.signal;
+  const corrected = CITY_CENTERS[name] || CITY_CENTERS[name.replace(/市$/, '').replace(/自治州$/, '')];
+  if (corrected) { lng = corrected[0]; lat = corrected[1]; } else { const osm = await getCityCenter(name.replace(/市$/, ''), lng, lat); if (osm) { lng = osm[0]; lat = osm[1]; } }
+  activeLayers.forEach(l => map.removeLayer(l)); activeLayers = []; labelLayer.clearLayers(); map.off("click"); infoPanel.style.display = "none";
+  currentOrigin = [lng, lat]; currentCityName = name;
+  document.getElementById("title-sub").textContent = t('subtitle', { city: name }); document.getElementById("legend-origin").textContent = t('originCity', { city: name }); document.title = t('pageTitle', { city: name });
+  updateURL(name); showLoading(t('loading'));
   const isChina = countryCode === 'cn' || (!countryCode && lat > 17 && lat < 55 && lng > 73 && lng < 136);
-
-  allCountyFeatures = [];
-  allGrayFeatures = [];
-  allCityOutlines = [];
-  allGrayCityOutlines = [];
-  driveDataMap = {};
-  const provinceOutlines = [];
-
+  allCountyFeatures = []; allGrayFeatures = []; allCityOutlines = []; allGrayCityOutlines = []; driveDataMap = {}; const provinceOutlines = [];
   if (isChina) {
-    const nearProvinces = [];
-    for (const prov of PROVINCES) {
-      if (prov.code >= 710000) continue;
-      const dist = haversine(lng, lat, prov.center[0], prov.center[1]);
-      if (dist < 800) nearProvinces.push(prov); 
-    }
-
+    const nearProvinces = PROVINCES.filter(p => p.code < 710000 && haversine(lng, lat, p.center[0], p.center[1]) < 800);
     const nearData = await parallelLimit(nearProvinces.map(p => () => loadProvinceCounties(p.code)), 3);
-
     for (const prov of nearData) {
       if (prov.provOutline) provinceOutlines.push(prov.provOutline);
       for (const city of prov.cityResults) {
         allCityOutlines.push(city.outline);
-        for (const county of city.counties) {
-          allCountyFeatures.push(county);
-          const code = String(county?.properties?.adcode || "");
-          const cname = county?.properties?.name || "";
-          const center = county?.properties?.centroid || county?.properties?.center;
-          if (center) {
-            const est = estimateDriveTime(center[0], center[1]);
-            driveDataMap[code] = { name: cname, time: est.time, dist: est.dist, estimated: true };
-          }
-        }
-        if (city.counties.length === 0 && city.outline) {
-          allCountyFeatures.push(city.outline);
-          const code = String(city.outline?.properties?.adcode || "");
-          const cname = city.outline?.properties?.name || "";
-          const center = city.outline?.properties?.centroid || city.outline?.properties?.center;
-          if (center) {
-            const est = estimateDriveTime(center[0], center[1]);
-            driveDataMap[code] = { name: cname, time: est.time, dist: est.dist, estimated: true };
-          }
-        }
+        const tgtList = city.counties.length > 0 ? city.counties : city.outline ? [city.outline] : [];
+        tgtList.forEach(cty => {
+          allCountyFeatures.push(cty); const code = String(cty?.properties?.adcode || ""), cname = cty?.properties?.name || "", center = cty?.properties?.centroid || cty?.properties?.center;
+          if (center) { const est = estimateDriveTime(center[0], center[1]); driveDataMap[code] = { name: cname, time: est.time, dist: est.dist, estimated: true }; }
+        });
       }
     }
   } else {
     showLoading(t('loadingOverseas'));
-    const isJapan = countryCode === 'jp';
-    const isAustralia = countryCode === 'au';
-    const EUROPE_CODES = new Set(['gb','fr','de','it','es','pt','nl','be','at','ch','pl','cz','se','no','dk','fi','ie','hu','ro','bg','hr','sk','si','lt','lv','ee','lu','gr']);
-    const isEurope = EUROPE_CODES.has(countryCode);
-
-    const queries = isJapan ? [
-      { radius: 400000, levels: "4", labelKey: "loadingAdmin" },
-      { radius: 400000, levels: "7", labelKey: "loadingDetail" },
-      { radius: 200000, levels: "8", labelKey: "loadingDetail" }
-    ] : isAustralia ? [
-      { radius: 300000, levels: "6", labelKey: "loadingAdmin" }
-    ] : isEurope ? [
-      { radius: 100000, levels: "4|5", labelKey: "loadingAdmin" },
-      { radius: 400000, levels: "6", labelKey: "loadingAdmin" },
-      { radius: 400000, levels: "8", labelKey: "loadingDetail" }
-    ] : [
-      { radius: 400000, levels: "5|6", labelKey: "loadingAdmin" },
-      { radius: 400000, levels: "4", labelKey: "loadingAdmin", fallback: true },
-      { radius: 300000, levels: "7", labelKey: "loadingDetail" },
-      { radius: 150000, levels: "8", labelKey: "loadingDetail" }
-    ];
-
+    const queries = countryCode === 'jp' ? [{ radius: 400000, levels: "4", labelKey: "loadingAdmin" }, { radius: 400000, levels: "7", labelKey: "loadingDetail" }, { radius: 200000, levels: "8", labelKey: "loadingDetail" }] : countryCode === 'au' ? [{ radius: 300000, levels: "6", labelKey: "loadingAdmin" }] : new Set(['gb','fr','de','it','es','pt','nl','be','at','ch','pl','cz','se','no','dk','fi','ie','hu','ro','bg','hr','sk','si','lt','lv','ee','lu','gr']).has(countryCode) ? [{ radius: 100000, levels: "4|5", labelKey: "loadingAdmin" }, { radius: 400000, levels: "6", labelKey: "loadingAdmin" }, { radius: 400000, levels: "8", labelKey: "loadingDetail" }] : [{ radius: 400000, levels: "5|6", labelKey: "loadingAdmin" }, { radius: 400000, levels: "4", labelKey: "loadingAdmin", fallback: true }, { radius: 300000, levels: "7", labelKey: "loadingDetail" }, { radius: 150000, levels: "8", labelKey: "loadingDetail" }];
     for (const q of queries) {
-      if (q.fallback && allCountyFeatures.length >= 10) continue;
-      showLoading(t(q.labelKey));
-      const query = `[out:json][timeout:90];relation["boundary"="administrative"]["admin_level"~"^(${q.levels})$"](around:${q.radius},${lat},${lng});out geom;`;
-
+      if (q.fallback && allCountyFeatures.length >= 10) continue; showLoading(t(q.labelKey));
       try {
-        const res = await fetch("https://overpass-api.de/api/interpreter", {
-          method: "POST",
-          body: "data=" + encodeURIComponent(query)
-        });
+        const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: "data=" + encodeURIComponent(`[out:json][timeout:90];relation["boundary"="administrative"]["admin_level"~"^(${q.levels})$"](around:${q.radius},${lat},${lng});out geom;`) });
         const data = await res.json();
-
         if (data.elements) {
           const seenIds = new Set(allCountyFeatures.map(f => f.properties.adcode));
-
           data.elements.forEach(el => {
-            if (el.type !== "relation" || !el.members) return;
-            const rCode = String(el.id);
-            if (seenIds.has(rCode)) return; 
-
-            const outerWays = el.members.filter(m => m.type === "way" && m.role === "outer" && m.geometry);
-            if (!outerWays.length) return;
-
-            const segments = outerWays.map(w => w.geometry.map(p => [p.lon, p.lat]));
-            const rings = [];
-
-            function ptsClose(a, b) {
-              return Math.abs(a[0]-b[0]) < 0.0001 && Math.abs(a[1]-b[1]) < 0.0001;
-            }
-
-            const remaining = segments.map((s,i) => i);
+            if (el.type !== "relation" || !el.members) return; const rCode = String(el.id); if (seenIds.has(rCode)) return;
+            const outerWays = el.members.filter(m => m.type === "way" && m.role === "outer" && m.geometry); if (!outerWays.length) return;
+            const segments = outerWays.map(w => w.geometry.map(p => [p.lon, p.lat])), rings = [], remaining = segments.map((_,idx) => idx);
             while (remaining.length > 0) {
-              let ring = [...segments[remaining.shift()]];
-              let changed = true;
+              let ring = [...segments[remaining.shift()]], changed = true;
               while (changed) {
                 changed = false;
                 for (let j = remaining.length - 1; j >= 0; j--) {
-                  const seg = segments[remaining[j]];
-                  const rEnd = ring[ring.length - 1];
-                  const rStart = ring[0];
-                  if (ptsClose(rEnd, seg[0])) {
-                    ring.push(...seg.slice(1));
-                    remaining.splice(j, 1); changed = true;
-                  } else if (ptsClose(rEnd, seg[seg.length - 1])) {
-                    ring.push(...[...seg].reverse().slice(1));
-                    remaining.splice(j, 1); changed = true;
-                  } else if (ptsClose(rStart, seg[seg.length - 1])) {
-                    ring.unshift(...seg.slice(0, -1));
-                    remaining.splice(j, 1); changed = true;
-                  } else if (ptsClose(rStart, seg[0])) {
-                    ring.unshift(...[...seg].reverse().slice(0, -1));
-                    remaining.splice(j, 1); changed = true;
-                  }
+                  const seg = segments[remaining[j]], rEnd = ring[ring.length - 1], rStart = ring[0];
+                  const ptsClose = (a, b) => Math.abs(a[0]-b[0]) < 0.0001 && Math.abs(a[1]-b[1]) < 0.0001;
+                  if (ptsClose(rEnd, seg[0])) { ring.push(...seg.slice(1)); remaining.splice(j, 1); changed = true; }
+                  else if (ptsClose(rEnd, seg[seg.length - 1])) { ring.push(...[...seg].reverse().slice(1)); remaining.splice(j, 1); changed = true; }
+                  else if (ptsClose(rStart, seg[seg.length - 1])) { ring.unshift(...seg.slice(0, -1)); remaining.splice(j, 1); changed = true; }
+                  else if (ptsClose(rStart, seg[0])) { ring.unshift(...[...seg].reverse().slice(0, -1)); remaining.splice(j, 1); changed = true; }
                 }
               }
               rings.push(ring);
             }
-
-            if (!rings.length && segments.length) {
-              segments.forEach(s => rings.push(s));
-            }
-            if (!rings.length) return;
-
-            const geom = rings.length === 1
-              ? { type: "Polygon", coordinates: [rings[0]] }
-              : { type: "MultiPolygon", coordinates: rings.map(r => [r]) };
-
-            const allPts = rings[0];
-            let sumLng = 0, sumLat = 0;
-            allPts.forEach(c => { sumLng += c[0]; sumLat += c[1]; });
-            const centroid = [sumLng / allPts.length, sumLat / allPts.length];
-
-            const rName = el.tags?.["name:zh"] || el.tags?.["name:en"] || el.tags?.name || "";
-            const est = estimateDriveTime(centroid[0], centroid[1]);
-
-            allCountyFeatures.push({
-              type: "Feature",
-              properties: { name: rName, adcode: rCode, centroid, center: centroid },
-              geometry: geom
-            });
-            driveDataMap[rCode] = { name: rName, time: est.time, dist: est.dist, estimated: true };
-            seenIds.add(rCode);
+            if (!rings.length && segments.length) segments.forEach(s => rings.push(s)); if (!rings.length) return;
+            let sumLng = 0, sumLat = 0; rings[0].forEach(c => { sumLng += c[0]; sumLat += c[1]; });
+            const centroid = [sumLng / rings[0].length, sumLat / rings[0].length], rName = el.tags?.["name:zh"] || el.tags?.["name:en"] || el.tags?.name || "";
+            allCountyFeatures.push({ type: "Feature", properties: { name: rName, adcode: rCode, centroid, center: centroid }, geometry: rings.length === 1 ? { type: "Polygon", coordinates: [rings[0]] } : { type: "MultiPolygon", coordinates: rings.map(r => [r]) } });
+            driveDataMap[rCode] = { name: rName, time: estimateDriveTime(centroid[0], centroid[1]).time, dist: estimateDriveTime(centroid[0], centroid[1]).dist, estimated: true }; seenIds.add(rCode);
           });
         }
-      } catch (e) {
-        console.error("Overpass API error:", e);
-      }
+      } catch (e) {}
     }
   }
-
   activeLayers._provOutlines = provinceOutlines;
-
-  const cacheKey = `drive_${lng.toFixed(2)}_${lat.toFixed(2)}`;
-  let cached = null;
-  try { cached = JSON.parse(localStorage.getItem(cacheKey)); } catch(e) {}
-
+  const cacheKey = `drive_${lng.toFixed(2)}_${lat.toFixed(2)}`; let cached = null; try { cached = JSON.parse(localStorage.getItem(cacheKey)); } catch(e) {}
   if (cached && typeof cached === 'object' && Object.keys(cached).length > 0) {
-    for (const [code, data] of Object.entries(cached)) {
-      if (driveDataMap[code]) {
-        driveDataMap[code] = { ...driveDataMap[code], ...data, estimated: false };
-      }
-    }
-    renderMap();
-    hideLoading();
-    updateURL(name);
+    for (const [code, data] of Object.entries(cached)) { if (driveDataMap[code]) driveDataMap[code] = { ...driveDataMap[code], ...data, estimated: false }; }
+    renderMap(); hideLoading();
   } else {
-    renderMap();
-    hideLoading();
-    updateURL(name);
-
-    const destinations = [];
-    for (const f of allCountyFeatures) {
-      const code = String(f?.properties?.adcode || "");
-      const center = f?.properties?.centroid || f?.properties?.center;
-      const fname = f?.properties?.name || "";
-      if (center && center.length === 2) {
-        destinations.push({ adcode: code, lng: center[0], lat: center[1], name: fname });
-      }
-    }
-
-    const batchSize = 50;
-    const driveCache = {};
-    const batches = [];
-    for (let i = 0; i < destinations.length; i += batchSize) {
-      batches.push(destinations.slice(i, i + batchSize));
-    }
-
+    renderMap(); hideLoading();
+    const destinations = []; allCountyFeatures.forEach(f => { const center = f?.properties?.centroid || f?.properties?.center; if (center?.length === 2) destinations.push({ adcode: String(f.properties.adcode), lng: center[0], lat: center[1], name: f.properties.name || "" }); });
+    const batchSize = 50, driveCache = {}, batches = []; for (let i = 0; i < destinations.length; i += batchSize) batches.push(destinations.slice(i, i + batchSize));
     showLoading(t('loadingDriveTime', { done: '0', total: String(batches.length) }));
     for (let bi = 0; bi < batches.length; bi++) {
-      if (signal.aborted) break;
-      const batch = batches[bi];
-      const batchResults = await fetchOSRMBatch(lng, lat, batch, signal);
-      for (const [adcode, result] of Object.entries(batchResults)) {
-        driveDataMap[adcode] = { ...driveDataMap[adcode], ...result, estimated: false };
-        driveCache[adcode] = result;
-      }
-      batch.forEach(d => {
-        if (!batchResults[d.adcode]) {
-          driveDataMap[d.adcode] = { ...driveDataMap[d.adcode], time: 999, dist: 0, estimated: false };
-          driveCache[d.adcode] = { name: d.name, time: 999, dist: 0 };
-        }
-      });
-      if (signal.aborted) break;
-      showLoading(t('loadingDriveTime', { done: String(bi + 1), total: String(batches.length) }));
-      renderMap(true);
+      if (signal.aborted) break; const batch = batches[bi]; const batchResults = await fetchOSRMBatch(lng, lat, batch, signal);
+      for (const [adcode, result] of Object.entries(batchResults)) { driveDataMap[adcode] = { ...driveDataMap[adcode], ...result, estimated: false }; driveCache[adcode] = result; }
+      batch.forEach(d => { if (!batchResults[d.adcode]) { driveDataMap[d.adcode] = { ...driveDataMap[d.adcode], time: 999, dist: 0, estimated: false }; driveCache[d.adcode] = { name: d.name, time: 999, dist: 0 }; } });
+      if (signal.aborted) break; showLoading(t('loadingDriveTime', { done: String(bi + 1), total: String(batches.length) })); renderMap(true);
     }
-    if (!signal.aborted) hideLoading();
-    try { localStorage.setItem(cacheKey, JSON.stringify(driveCache)); } catch(e) {}
+    if (!signal.aborted) hideLoading(); try { localStorage.setItem(cacheKey, JSON.stringify(driveCache)); } catch(e) {}
   }
   updateURL(name);
 }
 
-function updateURL(name) {
-  const url = new URL(window.location);
-  url.searchParams.set('city', name);
-  history.replaceState(null, '', url.toString());
-}
+function updateURL(name) { const url = new URL(window.location); url.searchParams.set('city', name); history.replaceState(null, '', url.toString()); }
 
-const _origSwitchCity = switchCity;
-
-let welcomeVisible = false;
-let currentCityAbortController = null; 
-
+let welcomeVisible = false, currentCityAbortController = null;
 function showWelcome() {
-  const ws = document.getElementById('welcome-screen');
-  if (!ws) return;
-  welcomeVisible = true;
-  ws.classList.remove('hidden');
-  requestAnimationFrame(() => ws.classList.remove('fade-out'));
-  const wi = document.getElementById('welcome-input');
-  const wr = document.getElementById('welcome-results');
-  if (wi) wi.value = '';
-  if (wr) wr.style.display = 'none';
-  hideLoading();
-  if (currentCityAbortController) {
-    currentCityAbortController.abort();
-    currentCityAbortController = null;
-  }
+  const ws = document.getElementById('welcome-screen'); if (!ws) return; welcomeVisible = true; ws.classList.remove('hidden'); requestAnimationFrame(() => ws.classList.remove('fade-out'));
+  const wi = document.getElementById('welcome-input'), wr = document.getElementById('welcome-results'); if (wi) wi.value = ''; if (wr) wr.style.display = 'none';
+  hideLoading(); if (currentCityAbortController) { currentCityAbortController.abort(); currentCityAbortController = null; }
   history.replaceState(null, '', '/');
 }
+function dismissWelcome() { const ws = document.getElementById('welcome-screen'); if (!ws) return; welcomeVisible = false; ws.classList.add('fade-out'); setTimeout(() => ws.classList.add('hidden'), 500); }
 
-function dismissWelcome() {
-  const ws = document.getElementById('welcome-screen');
-  if (!ws) return;
-  welcomeVisible = false;
-  ws.classList.add('fade-out');
-  setTimeout(() => ws.classList.add('hidden'), 500);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const card = document.getElementById('title-overlay-card');
-  if (card) card.addEventListener('click', showWelcome);
-});
+document.addEventListener('DOMContentLoaded', () => { const card = document.getElementById('title-overlay-card'); if (card) card.addEventListener('click', showWelcome); });
 
 async function welcomeSelectCity(name) {
-  dismissWelcome();
-  showLoading(t('loading'));
-  document.getElementById("title-sub").textContent = t('subtitle', { city: name });
-  document.getElementById("legend-origin").textContent = t('originCity', { city: name });
-  document.title = t('pageTitle', { city: name });
-  updateURL(name);
-  document.getElementById('city-search').value = name;
-  try {
-    const lang = window.LANG?.code || 'zh-CN';
-    const data = await geocodeSearch(name, lang, 1);
-    if (data.length > 0) {
-      const item = data[0];
-      document.getElementById('city-search').value = item.name;
-      await switchCity(item.name, item.lon, item.lat, item.countryCode);
-      return;
-    }
-  } catch(e) {}
+  dismissWelcome(); showLoading(t('loading')); document.getElementById("title-sub").textContent = t('subtitle', { city: name }); document.getElementById("legend-origin").textContent = t('originCity', { city: name }); document.title = t('pageTitle', { city: name }); updateURL(name); document.getElementById('city-search').value = name;
+  try { const data = await geocodeSearch(name, window.LANG?.code || 'zh-CN', 1); if (data?.[0]) { document.getElementById('city-search').value = data[0].name; await switchCity(data[0].name, data[0].lon, data[0].lat, data[0].countryCode); return; } } catch(e) {}
   await switchCity(name, 0, 0, '');
 }
 
 (function initWelcomeSearch() {
-  const input = document.getElementById('welcome-input');
-  const results = document.getElementById('welcome-results');
-  if (!input) return;
-  let timer;
+  const input = document.getElementById('welcome-input'), results = document.getElementById('welcome-results'); if (!input) return; let timer;
   input.addEventListener('input', () => {
-    clearTimeout(timer);
-    const q = input.value.trim();
-    if (q.length < 2) { results.style.display = 'none'; return; }
+    clearTimeout(timer); const q = input.value.trim(); if (q.length < 2) { results.style.display = 'none'; return; }
     timer = setTimeout(async () => {
       try {
-        const lang = window.LANG?.code || 'zh-CN';
-        const data = await geocodeSearch(q, lang, 5);
-        results.innerHTML = '';
-        if (!data.length) {
-          results.innerHTML = `<div class="result-item" style="color:#888">${t('noResult')}</div>`;
-          results.style.display = 'block'; return;
-        }
+        const data = await geocodeSearch(q, window.LANG?.code || 'zh-CN', 5); results.innerHTML = '';
+        if (!data.length) { results.innerHTML = `<div class="result-item" style="color:#888">${t('noResult')}</div>`; results.style.display = 'block'; return; }
         data.forEach(item => {
-          const el = document.createElement('div');
-          el.className = 'result-item';
-          el.textContent = item.displayName;
-          el.onclick = async () => {
-            results.style.display = 'none';
-            input.value = item.name;
-            dismissWelcome();
-            showLoading(t('loading'));
-            document.getElementById('city-search').value = item.name;
-            await switchCity(item.name, item.lon, item.lat, item.countryCode);
-          };
+          const el = document.createElement('div'); el.className = 'result-item'; el.textContent = item.displayName;
+          el.onclick = async () => { results.style.display = 'none'; input.value = item.name; dismissWelcome(); showLoading(t('loading')); document.getElementById('city-search').value = item.name; await switchCity(item.name, item.lon, item.lat, item.countryCode); };
           results.appendChild(el);
         });
         results.style.display = 'block';
       } catch(e) { results.style.display = 'none'; }
     }, 400);
   });
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { results.style.display = 'none'; }
-  });
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') results.style.display = 'none'; });
 })();
 
 (async function init() {
-  await _amapConfigReady;
-  const urlCity = new URLSearchParams(window.location.search).get('city');
-
+  await _amapConfigReady; const urlCity = new URLSearchParams(window.location.search).get('city');
   if (urlCity) {
-    dismissWelcome();
-    const _lang = localStorage.getItem('lang') || detectLang();
-    const _subtitleSuffix = { 'zh-CN': '耗时&距离', 'zh-TW': '耗時&距離', 'ja': '所要時間&距離', 'en': 'Time & Distance' }[_lang] || 'Time & Distance';
-    const _originPrefix = { 'zh-CN': '出发市', 'zh-TW': '出發市', 'ja': '出発市', 'en': 'Origin City' }[_lang] || 'Origin City';
-    document.getElementById("title-sub").textContent = `${urlCity} · ${_subtitleSuffix}`;
-    document.getElementById("legend-origin").textContent = `${_originPrefix} (${urlCity})`;
-    document.title = urlCity;
-    searchInput.value = urlCity;
-    showLoading(t('loading') || '...');
-
-    try {
-      const lang = window.LANG?.code || 'zh-CN';
-      const data = await geocodeSearch(urlCity, lang, 1);
-      if (data.length > 0) {
-        const item = data[0];
-        searchInput.value = item.name;
-        await switchCity(item.name, item.lon, item.lat, item.countryCode);
-        return;
-      }
-    } catch(e) {}
+    dismissWelcome(); const _lang = localStorage.getItem('lang') || detectLang();
+    document.getElementById("title-sub").textContent = `${urlCity} · ${{ 'zh-CN': '耗时&距离', 'zh-TW': '耗時&距離', 'ja': '所要時間&距離', 'en': 'Time & Distance' }[_lang] || 'Time & Distance'}`;
+    document.getElementById("legend-origin").textContent = `${{ 'zh-CN': '出发市', 'zh-TW': '出發市', 'ja': '出発市', 'en': 'Origin City' }[_lang] || 'Origin City'} (${urlCity})`;
+    document.title = urlCity; searchInput.value = urlCity; showLoading(t('loading') || '...');
+    try { const data = await geocodeSearch(urlCity, window.LANG?.code || 'zh-CN', 1); if (data?.[0]) { searchInput.value = data[0].name; await switchCity(data[0].name, data[0].lon, data[0].lat, data[0].countryCode); return; } } catch(e) {}
   }
 })();
 </script>
