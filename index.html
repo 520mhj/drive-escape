@@ -406,7 +406,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── 左下角经典图例 ── */
+    /* ── 左下角图例 ── */
     .leaflet-control-zoom { display: none !important; }
     .legend {
       position: fixed;
@@ -463,7 +463,7 @@
 
     /* ── 📱 移动端自适应响应区安全适配 ── */
     @media (max-width: 768px) {
-      .scenic-panel { display: none !important; } /* 手机端强制隐蔽5A边栏确保地图可视区 */
+      .scenic-panel { display: none !important; } 
       .title-overlay { top: calc(12px + env(safe-area-inset-top)); padding: 8px 16px; max-width: 60vw; }
       .title-overlay h1 { font-size: 16px; }
       .title-overlay .sub { font-size: 11px; }
@@ -777,7 +777,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   opacity: 0.3
 }).addTo(map);
 
-// 全局变量区
+// 全局状态变量
 let currentOrigin = [120.15, 30.26]; 
 let currentCityName = "杭州";
 let originAdcode = null;
@@ -788,7 +788,7 @@ let allCityOutlines = [];
 let allGrayCityOutlines = [];
 let labelLayer = L.layerGroup().addTo(map);
 let activeLayers = [];
-let national5ASpots = null; // 存放5A数据
+let national5ASpots = null;
 
 function haversine(lng1, lat1, lng2, lat2) {
   const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
@@ -1045,10 +1045,11 @@ document.addEventListener("click", e => {
   if (!e.target.closest(".search-box")) searchResults.style.display = "none";
 });
 
+// ── 直接连接阿里云 DataV，避免中转 Functions 超时或阻断 ──
 function geoURL(code) {
-  // 直接使用阿里云的 GeoJSON 数据源，跳过后端代理，避免 404 或 CORS 拦截
   return `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`;
 }
+
 async function fetchJSON(url, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -1112,18 +1113,6 @@ async function loadProvinceCounties(provAdcode) {
   }
 }
 
-async function loadProvinceCities(provAdcode) {
-  try {
-    const json = await fetchJSON(geoURL(provAdcode));
-    const features = json.features || [];
-    const provOutline = features.find(f => Number(f?.properties?.adcode) === provAdcode) || null;
-    const cities = features.filter(f => Number(f?.properties?.adcode || 0) !== provAdcode);
-    return { provAdcode, provOutline, cities };
-  } catch(e) {
-    return { provAdcode, provOutline: null, cities: [] };
-  }
-}
-
 async function fetchOSRMBatch(originLng, originLat, destinations, signal) {
   const results = {};
   const batchSize = 50;
@@ -1175,7 +1164,7 @@ async function fetchOSRMBatch(originLng, originLat, destinations, signal) {
   return results;
 }
 
-// ── 🎒 5A景区流式模糊匹配算法与渲染引擎 ──
+// ── 🎒 5A 景区高阶打标算法 ──
 function updateReachable5A() {
   if (!national5ASpots) return;
   const panel = document.getElementById('scenic-5a-panel');
@@ -1183,7 +1172,6 @@ function updateReachable5A() {
 
   const locationTimes = {};
 
-  // 1. 抓取并打标所有可达的行政县区车程
   allCountyFeatures.forEach(f => {
     const d = getDriveData(f);
     if (d && d.time <= MAX_DRIVE_HOURS) {
@@ -1197,7 +1185,6 @@ function updateReachable5A() {
     }
   });
 
-  // 2. 抓取并打标所有可达的地级城市车程 
   allCityOutlines.forEach(f => {
     if (!f) return;
     const code = String(f.properties.adcode);
@@ -1223,11 +1210,9 @@ function updateReachable5A() {
     }
   });
 
-  // 同步添加当前出发城市大底
   const originCore = currentCityName.replace(/(市|区|县)$/, '');
   locationTimes[originCore] = { time: 0, dist: 0 };
 
-  // 3. 扫描全国5A总库，过滤并关联可达耗时
   const reachableSpots = [];
   national5ASpots.provinces.forEach(p => {
     p.scenic_spots.forEach(spot => {
@@ -1237,7 +1222,6 @@ function updateReachable5A() {
           if (!matched || info.time < matched.time) matched = info;
         }
       }
-      // 直辖市兜底策略
       if (!matched && DIRECT_MUNICIPALITIES.has(Number(p.province_code))) {
         const provCore = p.province.replace(/市$/, '');
         if (locationTimes[provCore]) matched = locationTimes[provCore];
@@ -1254,7 +1238,6 @@ function updateReachable5A() {
     });
   });
 
-  // 排序与归类
   reachableSpots.sort((a, b) => a.time - b.time);
   const groups = {
     near: { title: "⚡ 周边微度假 (0.5–1.5h)", spots: [] },
@@ -1267,7 +1250,6 @@ function updateReachable5A() {
     else if (s.time <= 5.0) groups.far.spots.push(s);
   });
 
-  // 动态拼装高奢边栏 DOM
   let html = `<div class="panel-header">🎒 周末 5A 自驾去处</div>`;
   let hasAny = false;
   Object.values(groups).forEach(g => {
@@ -1279,21 +1261,18 @@ function updateReachable5A() {
       g.spots.forEach(s => {
         html += `<div class="spot-card" onclick="zoomToSpot('${s.name}')">
           <div class="spot-name">${s.name}</div>
-          <div class="spot-meta">🕐 ${fmtTime(s.time)}h · ${s.dist}km <span class="spot-year">${s.year}评定</span></div>
+          <div class="spot-meta">🕐 ${fmtTime(s.time)}h · ${s.dist}km <span class="spot-year">${s.year}</span></div>
         </div>`;
       });
       html += `</div></div>`;
     }
   });
 
-  if (!hasAny) {
-    html += `<div class="no-spots">当前可达圈内暂未匹配到5A景区</div>`;
-  }
+  if (!hasAny) html += `<div class="no-spots">当前可达圈内暂未匹配到5A景区</div>`;
   panel.innerHTML = html;
   panel.style.display = "block";
 }
 
-// 5A景区地图平滑飞跃联动
 async function zoomToSpot(name) {
   showLoading(t('loading') || '...');
   try {
@@ -1307,6 +1286,23 @@ async function zoomToSpot(name) {
     }
   } catch(e) {}
   hideLoading();
+}
+
+// ── 🧱 补齐缺失的 getCityCenter 核心声明函数 ──
+async function getCityCenter(name, lng, lat) {
+  try {
+    const r = 0.5; 
+    const query = `[out:json][timeout:5];node["place"~"city|town"]["name"~"${name}"](${lat-r},${lng-r},${lat+r},${lng+r});out 1;`;
+    const res = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST", body: "data=" + encodeURIComponent(query)
+    });
+    const data = await res.json();
+    if (data.elements && data.elements.length > 0) {
+      const e = data.elements[0];
+      return [e.lon, e.lat];
+    }
+  } catch(e) {}
+  return null; 
 }
 
 function renderMap(skipFitBounds = false) {
@@ -1412,15 +1408,6 @@ function renderMap(skipFitBounds = false) {
     }
   }).addTo(map);
   activeLayers.push(countyLayer);
-
-  map.on("click", () => {
-    infoPanel.style.display = "none";
-    countyLayer.resetStyle();
-  });
-  map.getContainer().addEventListener("mouseleave", () => {
-    countyLayer.resetStyle();
-    infoPanel.style.display = "none";
-  });
 
   const cityBorderLayer = L.geoJSON({ type: "FeatureCollection", features: allCityOutlines.filter(Boolean) }, {
     style(f) {
@@ -1660,7 +1647,7 @@ async function switchCity(name, lng, lat, countryCode) {
     renderMap();
     hideLoading();
     updateURL(name);
-    updateReachable5A(); // 命中本地缓存时，立即调起景区加载
+    updateReachable5A(); 
   } else {
     renderMap();
     hideLoading();
@@ -1704,7 +1691,7 @@ async function switchCity(name, lng, lat, countryCode) {
     }
     if (!signal.aborted) {
       hideLoading();
-      updateReachable5A(); // 真实OSRM数据串行批处理全部加载完成后，刷新5A推荐
+      updateReachable5A(); 
     }
     try { localStorage.setItem(cacheKey, JSON.stringify(driveCache)); } catch(e) {}
   }
@@ -1811,7 +1798,6 @@ async function welcomeSelectCity(name) {
   });
 })();
 
-// 5A静态数据本地异步加载器
 async function load5AData() {
   try {
     const r = await fetch('5A景区.json');
@@ -1821,9 +1807,7 @@ async function load5AData() {
   }
 }
 
-// ── 首次加载初始化 ──
 (async function init() {
-  // 并发并行加载高德网关配置和5A景区基础底数据
   await Promise.all([_amapConfigReady, load5AData()]);
   const urlCity = new URLSearchParams(window.location.search).get('city');
 
